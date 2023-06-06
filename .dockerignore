@@ -1,0 +1,10 @@
+.git
+.cache
+node_modules
+.dockerignore
+npm-debug.log
+openapi
+coverage
+.idea
+.vscode
+README.md
