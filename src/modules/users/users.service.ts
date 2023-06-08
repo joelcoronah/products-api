@@ -1,13 +1,14 @@
 import { Injectable, HttpException } from '@nestjs/common';
 
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { UserFirebase } from './user.firebase.service';
 import * as ResponseMessage from './response.messages';
 import { UserLoginResponse } from './interfaces';
+import { QueryParams, paginateResponse } from '../../shared/interfaces/paginate';
 
 @Injectable()
 export class UsersService {
@@ -55,8 +56,22 @@ export class UsersService {
     return { ...userUpdated, firstLogin };
   }
 
-  findAll() {
-    return `This action returns all users`;
+  async findAll(query: QueryParams): Promise<any> {
+    const limit = query.limit || 10;
+    const firstName = query.firstName || '';
+
+    const page = query.page || 1;
+
+    const offset = (page - 1) * limit;
+
+    const data = await this.userRepository.findAndCount({
+      where: { firstName: Like('%' + firstName + '%') },
+      order: { firstName: 'DESC' },
+      take: limit,
+      skip: offset,
+    });
+
+    return paginateResponse(data, page, limit);
   }
 
   findOneByEmail(email: string) {
