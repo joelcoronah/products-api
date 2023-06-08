@@ -12,7 +12,7 @@ async function bootstrap() {
    *  Cors config
    */
   const cors = {
-    origin: ['http://localhost:3000', 'https://serene-kepler-792adb.netlify.app'],
+    origin: ['http://localhost:3000'],
     methods: 'GET, HEAD, PUT, PATCH, POST, DELETE, OPTIONS',
     preflightContinue: false,
     optionsSuccessStatus: 204,

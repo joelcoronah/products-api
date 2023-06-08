@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Query,
+} from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -15,23 +25,12 @@ export class UsersController {
     return { data: { user }, statusCode: 'USER_CREATED', message: 'User created successfully' };
   }
 
-  @Post('/login')
-  async login(@Body() loginUserDto: LoginUserDto) {
-    const { firstName, lastName, firstLogin } = await this.usersService.setLastLogin(
-      loginUserDto.authId,
-    );
-
-    return {
-      data: { firstName, lastName, firstLogin },
-      statusCode: 'USER_LOGGED_IN',
-      message: 'User logged in successfully',
-    };
-  }
-
   @Get()
   @UseGuards(AuthGuard)
-  findAll() {
-    return this.usersService.findAll();
+  async findAll(@Query() { page, offset, limit, firstName }) {
+    const data = await this.usersService.findAll({ page, offset, limit, firstName });
+
+    return { data, statusCode: 'USER_LISTED', message: 'User listed successfully' };
   }
 
   @Get(':id')

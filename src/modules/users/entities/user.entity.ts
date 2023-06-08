@@ -2,7 +2,7 @@ import { Entity, Column, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeor
 
 @Entity('user')
 export class User {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn()
   id: string;
 
   @Column({ nullable: false, unique: true })

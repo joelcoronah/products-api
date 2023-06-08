@@ -5,8 +5,16 @@ import { AuthService } from './auth.service';
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-  @Post('auth/login')
+  @Post('/login')
   async login(@Body() authCredentialsDto: any) {
-    return this.authService.signin(authCredentialsDto);
+    console.log({ authCredentialsDto });
+
+    const token = await this.authService.signin(authCredentialsDto);
+
+    return {
+      data: { token },
+      statusCode: 'USER_LOGGED_IN',
+      message: 'User logged in successfully',
+    };
   }
 }
