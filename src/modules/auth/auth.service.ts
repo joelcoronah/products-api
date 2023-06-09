@@ -7,17 +7,17 @@ import { UsersService } from '../users/users.service';
 export class AuthService {
   constructor(private userServices: UsersService, private jwtService: JwtService) {}
 
-  async signin(authCredentialsDto: any): Promise<string> {
-    const username: string = authCredentialsDto.email;
+  async signin(authCredentialsDto: any): Promise<any> {
+    const uid: string = authCredentialsDto.uid;
 
-    const user = await this.userServices.findOneByEmail(username);
+    const user = await this.userServices.findOneByAuthId(uid);
 
     if (user) {
-      const payload: UserJwtPayload = { username };
+      const payload: UserJwtPayload = { username: user.email };
 
       const token: string = await this.jwtService.sign(payload);
 
-      return token;
+      return { token, user };
     } else {
       console.log('Incorrect login credentials!');
       throw new UnauthorizedException('Incorrect login credentials!');

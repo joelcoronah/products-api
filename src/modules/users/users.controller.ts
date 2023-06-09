@@ -29,22 +29,25 @@ export class UsersController {
   @UseGuards(AuthGuard)
   async findAll(@Query() { page, offset, limit, firstName }) {
     const data = await this.usersService.findAll({ page, offset, limit, firstName });
-
     return { data, statusCode: 'USER_LISTED', message: 'User listed successfully' };
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(+id);
+  @UseGuards(AuthGuard)
+  async findOne(@Param('id') id: string) {
+    const data = await this.usersService.findOne(+id);
+    return { data, statusCode: 'USER_LISTED', message: 'User listed successfully' };
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(+id, updateUserDto);
+  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+    const data = await this.usersService.update(+id, updateUserDto);
+    return { data, statusCode: 'USER_UPDATED', message: 'User updated successfully' };
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(+id);
+  async remove(@Param('id') id: string) {
+    const data = await this.usersService.remove(+id);
+    return { data, statusCode: 'USER_DELETED', message: 'User deleted successfully' };
   }
 }

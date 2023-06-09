@@ -3,7 +3,7 @@ import { Entity, Column, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeor
 @Entity('user')
 export class User {
   @PrimaryGeneratedColumn()
-  id: string;
+  id: number;
 
   @Column({ nullable: false, unique: true })
   authId: string;
@@ -32,4 +32,9 @@ export class User {
     nullable: true,
   })
   updatedAt: Date | null;
+
+  @Column({
+    nullable: true,
+  })
+  deletedAt: Date | null;
 }
