@@ -9,22 +9,33 @@ export class UserFirebase {
     try {
       const fbAuth = admin.auth();
       const fbUser = await fbAuth.getUserByEmail(email);
+
+      if (!fbUser) {
+        return true;
+      }
       await fbAuth.deleteUser(fbUser.uid);
       return true;
     } catch ({ message }) {
+      console.error('Error deleting user in firebase:', message);
       const responseMessage = ResponseMessage.INTERNAL_SERVER_ERROR(message);
       throw new HttpException(responseMessage.message, responseMessage.status);
     }
   }
 
-  async createFirebaseUser(firebaseUserData: { email: string; firstName: string }): Promise<any> {
-    const { email, firstName } = firebaseUserData;
-    const password: string = genPassword();
+  async createFirebaseUser(firebaseUserData: {
+    email: string;
+    firstName: string;
+    password: string;
+  }): Promise<any> {
+    const { email, firstName, password } = firebaseUserData;
+
+    const generatedPassword = password ?? genPassword();
+
     const firebaseResponse: any = await admin
       .auth()
       .createUser({
         email,
-        password,
+        password: generatedPassword,
         displayName: firstName,
       })
       .catch(({ message }) => {

@@ -1,7 +1,7 @@
 import { Injectable, HttpException } from '@nestjs/common';
 
 import { InjectRepository } from '@nestjs/typeorm';
-import { Like, Repository } from 'typeorm';
+import { IsNull, Like, Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
@@ -22,7 +22,9 @@ export class UsersService {
     const firebaseUser = await this.firebaseService.createFirebaseUser({
       email: createUserDto.email,
       firstName: createUserDto.firstName,
+      password: createUserDto.password,
     });
+
     const newUser = await this.userRepository
       .save({
         ...createUserDto,
@@ -65,7 +67,7 @@ export class UsersService {
     const offset = (page - 1) * limit;
 
     const data = await this.userRepository.findAndCount({
-      where: { firstName: Like('%' + firstName + '%') },
+      where: { firstName: Like('%' + firstName + '%'), deletedAt: IsNull() },
       order: { firstName: 'DESC' },
       take: limit,
       skip: offset,
@@ -78,15 +80,40 @@ export class UsersService {
     return this.userRepository.findOne({ where: { email } });
   }
 
+  findOneByAuthId(authId: string) {
+    return this.userRepository.findOne({ where: { authId } });
+  }
   findOne(id: number) {
-    return `This action returns a #${id} user`;
+    return this.userRepository.findOneBy({ id });
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
+    const user = await this.userRepository.findOneBy({ id });
+
+    if (!user) {
+      throw new HttpException(ResponseMessage.NOT_FOUND.message, ResponseMessage.NOT_FOUND.status);
+    }
+
+    const userUpdated = this.userRepository.save({ ...user, ...updateUserDto });
+
+    return userUpdated;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async remove(id: number) {
+    const user = await this.userRepository.findOneBy({ id });
+
+    if (!user) {
+      throw new HttpException(ResponseMessage.NOT_FOUND.message, ResponseMessage.NOT_FOUND.status);
+    }
+
+    const userUpdated = await this.userRepository.save({ ...user, deletedAt: new Date() });
+
+    console.log(userUpdated);
+
+    if (userUpdated) {
+      await this.firebaseService.removeFirebaseUser(user.email);
+    }
+
+    return userUpdated;
   }
 }

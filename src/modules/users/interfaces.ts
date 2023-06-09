@@ -12,7 +12,7 @@ export enum AuthProvider {
 }
 
 export type UserLoginResponse = {
-  id: string;
+  id: number;
   authId: string;
   email: string;
   firstName: string;
@@ -22,4 +22,5 @@ export type UserLoginResponse = {
   firstLogin: boolean;
   createdAt: Date;
   updatedAt: Date;
+  deletedAt: Date;
 };

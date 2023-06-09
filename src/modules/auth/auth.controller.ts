@@ -7,12 +7,10 @@ export class AuthController {
 
   @Post('/login')
   async login(@Body() authCredentialsDto: any) {
-    console.log({ authCredentialsDto });
-
-    const token = await this.authService.signin(authCredentialsDto);
+    const { token, user } = await this.authService.signin(authCredentialsDto);
 
     return {
-      data: { token },
+      data: { token, user },
       statusCode: 'USER_LOGGED_IN',
       message: 'User logged in successfully',
     };
